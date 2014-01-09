@@ -1,0 +1,28 @@
+#!/bin/bash
+USER="admin"
+PASSWORD=“xyz”
+OUTPUTDIR="/var/www/vhosts/myserver.com/httpdocs/aasim"
+MYSQLDUMP="/usr/bin/mysqldump"
+MYSQL="/usr/bin/mysql"
+GZIP_ENABLED=1
+
+databases=`$MYSQL --user=$USER --password=$PASSWORD -e "SHOW DATABASES;" | tr -d "|" | grep -v Database`
+
+counter=1
+
+for db in $databases; do
+#echo $db
+counter=$((counter+1))
+
+#if [ $counter -lt 20 ] ; then
+echo "$db backup..";
+
+if [ $GZIP_ENABLED == 1 ]; then
+                $MYSQLDUMP --force --opt --user=$USER --password=$PASSWORD --databases $db | gzip > "$OUTPUTDIR/$db.gz"
+        else
+            $MYSQLDUMP --force --opt --user=$USER --password=$PASSWORD --databases $db > "$OUTPUTDIR/$db.sql"
+        fi
+
+#fi
+
+done
